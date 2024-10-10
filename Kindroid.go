@@ -12,6 +12,11 @@ import (
 var url = "https://api.kindroid.ai/v1/send-message" 
 
 func (kin *NomiKin) SendKindroidMessage(message *string) (string, error) {
+    if len(*message) > 749 {
+        log.Printf("Message too long: %d", len(*message))
+        return fmt.Sprintf("Your message was `%d` characters long, but the maximum message length Kindroid permits is 750. Please send a shorter message.", len(*message)), nil
+    }
+
     headers := map[string]string{
         "Authorization": "Bearer " + kin.ApiKey,
         "Content-Type": "application/json",
