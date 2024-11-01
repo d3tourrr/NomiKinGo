@@ -14,7 +14,7 @@ var urlComponents = []string {"https://api.nomi.ai/v1/nomis/", "/chat"}
 func (nomi *NomiKin) SendNomiMessage (message *string) (string, error) {
     if len(*message) > 599 {
         log.Printf("Message too long: %d", len(*message))
-        return fmt.Sprintf("Your message was `%d` characters long, but the maximum message length Nomi permits is 600. Please send a shorter message.", len(*message)), nil
+        return fmt.Sprintf("Your message was `%d` characters long, but the maximum message length is 600. Please send a shorter message.", len(*message)), nil
     }
 
     headers := map[string]string{
