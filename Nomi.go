@@ -44,14 +44,12 @@ func (nomi *NomiKin) ApiCall(endpoint string, method string, body interface{}) (
     var err error
 
     if body != nil {
-        log.Println("Body is not nil")
         jsonBody, err = json.Marshal(body)
         if err != nil {
             return nil, fmt.Errorf("Error constructing body: %v: ", err)
         }
         bodyReader = bytes.NewBuffer(jsonBody)
     } else {
-        log.Println("Body is nil")
         bodyReader = nil
     }
 
@@ -104,7 +102,6 @@ func (nomi *NomiKin) RoomExists(roomName *string) (*Room, error) {
     }
 
     for _, r := range rooms.Rooms {
-        log.Printf("Checking room %v - %v", r.Name, r.Uuid)
         if r.Name == *roomName {
             return &r, nil
         }
@@ -172,6 +169,8 @@ func (nomi *NomiKin) SendNomiRoomMessage(message *string, roomId *string) (strin
         if replyMessage, ok := result["sentMessage"].(map[string]interface{}); ok {
             log.Printf("Sent message to room %v: %v\n", roomId, replyMessage)
             return fmt.Sprintf("Sent message to room %v: %v\n", roomId, replyMessage), nil
+        } else {
+            log.Printf("Error parsing sent message response:\n %v", result)
         }
     }
 
