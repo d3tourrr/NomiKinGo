@@ -13,13 +13,25 @@ import (
 
 var UrlComponents map[string][]string
 
+type Room struct {
+    Name string
+    Uuid string
+}
+
 type RoomContainer struct {
     Rooms []Room
 }
 
-type Room struct {
-    Name string
-    Uuid string
+type Message struct {
+    Text string `json:"text"`
+}
+
+type SentMessageContainer struct {
+    SentMessage Message `json:"sentMessage"`
+}
+
+type ReplyMessageContainer struct {
+    ReplyMessage Message `json:"replyMessage"`
 }
 
 func (nomi *NomiKin) Init() {
@@ -163,17 +175,14 @@ func (nomi *NomiKin) SendNomiRoomMessage(message *string, roomId *string) (strin
     if err != nil {
         log.Printf("Error from API call: %v", err.Error())
     }
+
     log.Printf("Raw response: %v", string(response))
-    var result map[string]interface{}
+    var result SentMessageContainer
     if err := json.Unmarshal([]byte(response), &result); err != nil {
-        if sentMessage, ok := result["sentMessage"].(map[string]interface{}); ok {
-            if messageText, ok := sentMessage["text"].(string); ok {
-                log.Printf("Sent message to room %v: %v\n", roomId, messageText)
-                return fmt.Sprintf("Sent message to room %v: %v\n", roomId, messageText), nil
-            }
-        } else {
-            log.Printf("Error parsing sent message response:\n %v", result)
-        }
+        log.Printf("Sent message to room %v: %v\n", roomId, result.SentMessage.Text)
+        return fmt.Sprintf("Sent message to room %v: %v\n", roomId, result.SentMessage.Text), nil
+    } else {
+        log.Printf("Error parsing sent message response:\n %v", result)
     }
 
     return "", fmt.Errorf("Failed to return anything meaningful")
@@ -191,14 +200,10 @@ func (nomi *NomiKin) RequestNomiRoomReply(roomId *string, nomiId *string) (strin
     }
 
 
-    var result map[string]interface{}
+    var result ReplyMessageContainer
     if err := json.Unmarshal([]byte(response), &result); err != nil {
-        if replyMessage, ok := result["replyMessage"].(map[string]interface{}); ok {
-            if messageText, ok := replyMessage["text"].(string); ok {
-                log.Printf("Sent message to room %v: %v\n", roomId, messageText)
-                return messageText, nil
-            }
-        }
+        log.Printf("Sent message to room %v: %v\n", roomId, result.ReplyMessage.Text)
+        return result.ReplyMessage.Text, nil
     }
 
     return "", fmt.Errorf("Failed to return anything meaningful")
