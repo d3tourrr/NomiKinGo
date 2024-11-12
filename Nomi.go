@@ -95,7 +95,7 @@ func (nomi *NomiKin) RoomExists(roomName *string) (bool, error) {
     }
 
     if err := json.Unmarshal([]byte(roomResult), &rooms); err != nil {
-        log.Printf("Cannot unmarshal to room: %v", roomResult)
+        log.Printf("Cannot unmarshal to room: %v", string(roomResult))
         return false, err
     }
 
