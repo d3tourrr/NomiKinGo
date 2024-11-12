@@ -12,6 +12,15 @@ import (
 
 var UrlComponents map[string][]string
 
+type Room struct {
+    Name string
+    Note string
+    backchannelingEnabled bool
+    Nomis []string
+    Uuid string
+    Status string
+}
+
 func (nomi *NomiKin) Init() {
     log.Println("Entered Init")
     UrlComponents = make(map[string][]string)
@@ -22,7 +31,7 @@ func (nomi *NomiKin) Init() {
     log.Println(UrlComponents["RoomCreate"])
 }
 
-func (nomi *NomiKin) ApiCall(endpoint string, method string, body interface{}) (map[string]interface{}, error) {
+func (nomi *NomiKin) ApiCall(endpoint string, method string, body interface{}) ([]byte, error) {
     headers := map[string]string{
         "authorization": nomi.ApiKey,
         "content-type": "application/json",
@@ -67,32 +76,32 @@ func (nomi *NomiKin) ApiCall(endpoint string, method string, body interface{}) (
         return nil, fmt.Errorf("Error response from Nomi API: %v", string(responseBody))
     }
 
-    var result map[string]interface{}
-    if err := json.Unmarshal(responseBody, &result); err != nil {
-        return nil, fmt.Errorf("Error unmarshalling Nomi %v response: %v", nomi.CompanionId, err)
-    }
-
-    return result, nil
+    return responseBody, nil
 }
 
 func (nomi *NomiKin) RoomExists(roomName *string) (bool, error) {
     log.Printf("Checking Nomi %v room %v", nomi.CompanionId, *roomName)
-    roomUrl := UrlComponents["RoomCreate"][0] + "/" + *roomName
-    _, err := nomi.ApiCall(roomUrl, "Get", nil)
-    
+    roomUrl := UrlComponents["RoomCreate"][0]
+    roomResult, err := nomi.ApiCall(roomUrl, "Get", nil)
+    var rooms []Room
+
     if err != nil {
-        r, _ := regexp.Compile(`RoomNotFound`)
-        if r.MatchString(err.Error()) {
-            log.Printf("Room already exists for Nomi %v: %v", nomi.CompanionId, *roomName)
-            return true, nil
-        } else {
-            log.Printf("Room does not exist for Nomi %v: %v", nomi.CompanionId, *roomName)
-            return false, err
+        return false, err
+    }
+
+    if err := json.Unmarshal([]byte(roomResult), &rooms); err != nil {
+        return false, err
+    }
+
+    exists := false
+    for _, r := range rooms {
+        if r.Name == *roomName {
+            exists = true
+            break
         }
     }
 
-    log.Printf("Failed to return an expected response - RoomExists")
-    return false, nil
+    return exists, nil
 }
 
 func (nomi *NomiKin) CreateNomiRoom(name *string, note *string, backchannelingEnabled *bool, nomiUuids []string) (string, error) {
@@ -100,6 +109,8 @@ func (nomi *NomiKin) CreateNomiRoom(name *string, note *string, backchannelingEn
     if err != nil {
         log.Printf("Error checking if room exists: %v", err)
     }
+
+    log.Printf("Room exists: %v", roomExists)
     if roomExists {
         // TODO: Add the Nomi to the room
         return *name, nil
