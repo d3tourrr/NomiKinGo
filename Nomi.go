@@ -221,7 +221,7 @@ func (nomi *NomiKin) SendNomiMessage (message *string) (string, error) {
         "messageText": *message,
     }
 
-    messageSendUrl := UrlComponents["SendMessage"][0] + "/" + nomi.CompanionId + "/chat"
+    messageSendUrl := UrlComponents["SendMessage"][0] + "/" + nomi.CompanionId + "/" + UrlComponents["SendMessage"][1]
     response, err := nomi.ApiCall(messageSendUrl, "Post", bodyMap)
     if err != nil {
         log.Printf("Error from API call: %v", err.Error())
