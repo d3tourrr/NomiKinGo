@@ -12,7 +12,7 @@ import (
 
 var UrlComponents map[string][]string
 
-func (nomi *NomiKin) Init() {
+func Init() {
     UrlComponents := make(map[string][]string)
     UrlComponents["SendMessage"] = []string {"https://api.nomi.ai/v1/nomis", "chat"}
     UrlComponents["RoomCreate"] = []string {"https://api.nomi.ai/v1/rooms"}
@@ -75,7 +75,7 @@ func (nomi *NomiKin) ApiCall(endpoint string, method string, body interface{}) (
 
 func (nomi *NomiKin) RoomExists(roomName *string) (bool, error) {
     log.Print("Entered RoomExists")
-    nomi.Init()
+    Init()
     for _, val := range UrlComponents {
         log.Println(val[0])
     }
