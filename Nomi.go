@@ -13,6 +13,10 @@ import (
 
 var UrlComponents map[string][]string
 
+type RoomContainer struct {
+    Rooms []Room
+}
+
 type Room struct {
     Name string
     Uuid string
@@ -93,14 +97,14 @@ func (nomi *NomiKin) RoomExists(roomName *string) (bool, error) {
         return false, err
     }
 
-    var roomObj map[string]interface{}
-    if err := json.Unmarshal([]byte(roomResult), &roomObj); err != nil {
+    var rooms RoomContainer
+    if err := json.Unmarshal([]byte(roomResult), &rooms); err != nil {
         log.Printf("Cannot unmarshal to room: %v", string(roomResult))
         return false, err
     }
 
     exists := false
-    for _, r := range roomObj["rooms"].([]Room) {
+    for _, r := range rooms.Rooms {
         log.Printf("Checking room %v - %v", r.Name, r.Uuid)
         if r.Name == *roomName {
             exists = true
