@@ -13,9 +13,9 @@ import (
 var UrlComponents map[string][]string
 
 func (nomi *NomiKin) Init() {
-    UrlComponents := make(map[string][]string)
+    UrlComponents := make(map[string]interface{})
     UrlComponents["SendMessage"] = []string {"https://api.nomi.ai/v1/nomis", "chat"}
-    UrlComponents["RoomCreate"] = []string {"https://api.nomi.ai/v1/rooms", "nil"}
+    UrlComponents["RoomCreate"] = []string {"https://api.nomi.ai/v1/rooms"}
     UrlComponents["RoomSend"] = []string {"https://api.nomi.ai/v1/rooms", "chat"}
     UrlComponents["RoomReply"] = []string {"https://api.nomi.ai/v1/rooms", "chat/request"}
 }
