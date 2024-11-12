@@ -15,7 +15,7 @@ var UrlComponents map[string][]string
 func (nomi *NomiKin) Init() {
     UrlComponents := make(map[string][]string)
     UrlComponents["SendMessage"] = []string {"https://api.nomi.ai/v1/nomis", "chat"}
-    UrlComponents["RoomCreate"] = []string {"https://api.nomi.ai/v1/rooms"}
+    UrlComponents["RoomCreate"] = []string {"https://api.nomi.ai/v1/rooms", ""}
     UrlComponents["RoomSend"] = []string {"https://api.nomi.ai/v1/rooms", "chat"}
     UrlComponents["RoomReply"] = []string {"https://api.nomi.ai/v1/rooms", "chat/request"}
 }
@@ -93,6 +93,15 @@ func (nomi *NomiKin) RoomExists(roomName *string) (bool, error) {
 }
 
 func (nomi *NomiKin) CreateNomiRoom(name *string, note *string, backchannelingEnabled *bool, nomiUuids []string) (string, error) {
+    roomExists, err := nomi.RoomExists(name)
+    if err != nil {
+        log.Printf("Error checking if room exists: %v", err)
+    }
+    if roomExists {
+        // TODO: Add the Nomi to the room
+        return *name, nil
+    }
+
     roomUrl := UrlComponents["RoomCreate"][0]
     bodyMap := map[string]interface{}{
         "name": *name,
