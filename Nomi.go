@@ -12,7 +12,7 @@ import (
 
 var UrlComponents map[string][]string
 
-func Init() {
+func (nomi *NomiKin) Init() {
     log.Println("Entered Init")
     UrlComponents = make(map[string][]string)
     UrlComponents["SendMessage"] = []string {"https://api.nomi.ai/v1/nomis", "chat"}
@@ -61,7 +61,7 @@ func (nomi *NomiKin) ApiCall(endpoint string, method string, body interface{}) (
     if resp.StatusCode != http.StatusOK {
         var errorResult map[string]interface{}
         if err := json.Unmarshal(responseBody, &errorResult); err != nil {
-            return nil, fmt.Errorf("Error unmarshalling error response: %v", err)
+            return nil, fmt.Errorf("Error unmarshalling error response: %v\n%v", err, string(responseBody))
         }
 
         return nil, fmt.Errorf("Error response from Nomi API: %v", string(responseBody))
@@ -76,11 +76,7 @@ func (nomi *NomiKin) ApiCall(endpoint string, method string, body interface{}) (
 }
 
 func (nomi *NomiKin) RoomExists(roomName *string) (bool, error) {
-    log.Print("Entered RoomExists")
-    Init()
-    for _, val := range UrlComponents {
-        log.Println(val[0])
-    }
+    log.Printf("Checking Nomi %v room %v", nomi.CompanionId, *roomName)
     roomUrl := UrlComponents["RoomCreate"][0] + "/" + *roomName
     _, err := nomi.ApiCall(roomUrl, "Get", nil)
     
