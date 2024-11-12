@@ -124,21 +124,17 @@ func (nomi *NomiKin) CreateNomiRoom(name *string, note *string, backchannelingEn
         "nomiUuids": nomiUuids,
     }
 
-    result, err := nomi.ApiCall(roomUrl, "Post", bodyMap)
-
+    response, err := nomi.ApiCall(roomUrl, "Post", bodyMap)
     if err != nil {
-        r, _ := regexp.Compile(`RoomNotFound`)
-        if r.MatchString(err.Error()) {
-            log.Printf("Room already exists for Nomi %v: %v", nomi.CompanionId, *name)
-            return *name, nil
-        } else {
-            return "", err
-        }
+        return "", err
     }
 
-    if roomCreateName, ok := result["name"].(string); ok {
-        log.Printf("Created Nomi %v room: %v\n", nomi.CompanionId, roomCreateName)
-        return roomCreateName, nil
+    var result map[string]interface{}
+    if err := json.Unmarshal([]byte(response), &result); err != nil {
+        if roomCreateName, ok := result["name"].(string); ok {
+            log.Printf("Created Nomi %v room: %v\n", nomi.CompanionId, roomCreateName)
+            return roomCreateName, nil
+        }
     }
 
     return "", fmt.Errorf("Failed to return anything meaningful")
@@ -155,14 +151,17 @@ func (nomi *NomiKin) SendNomiRoomMessage(message *string, roomId *string) (strin
     }
 
     messageSendUrl := UrlComponents["RoomSend"][0] + "/" + *roomId + "/" + UrlComponents["RoomSend"][1]
-    result, err := nomi.ApiCall(messageSendUrl, "Post", bodyMap)
+    response, err := nomi.ApiCall(messageSendUrl, "Post", bodyMap)
     if err != nil {
         log.Printf("Error from API call: %v", err.Error())
     }
 
-    if replyMessage, ok := result["sentMessage"].(map[string]interface{}); ok {
-        log.Printf("Sent message to room %v: %v\n", roomId, replyMessage)
-        return fmt.Sprintf("Sent message to room %v: %v\n", roomId, replyMessage), nil
+    var result map[string]interface{}
+    if err := json.Unmarshal([]byte(response), &result); err != nil {
+        if replyMessage, ok := result["sentMessage"].(map[string]interface{}); ok {
+            log.Printf("Sent message to room %v: %v\n", roomId, replyMessage)
+            return fmt.Sprintf("Sent message to room %v: %v\n", roomId, replyMessage), nil
+        }
     }
 
     return "", fmt.Errorf("Failed to return anything meaningful")
@@ -174,14 +173,18 @@ func (nomi *NomiKin) RequestNomiRoomReply(roomId *string, nomiId *string) (strin
     }
 
     messageSendUrl := UrlComponents["RoomReply"][0] + "/" + *roomId + "/" + UrlComponents["RoomReply"][1]
-    result, err := nomi.ApiCall(messageSendUrl, "Post", bodyMap)
+    response, err := nomi.ApiCall(messageSendUrl, "Post", bodyMap)
     if err != nil {
         log.Printf("Error from API call: %v", err.Error())
     }
 
-    if replyMessage, ok := result["sentMessage"].(map[string]interface{}); ok {
-        log.Printf("Sent message to room %v: %v\n", roomId, replyMessage)
-        return fmt.Sprintf("Sent message to room %v: %v\n", roomId, replyMessage), nil
+
+    var result map[string]interface{}
+    if err := json.Unmarshal([]byte(response), &result); err != nil {
+        if replyMessage, ok := result["sentMessage"].(map[string]interface{}); ok {
+            log.Printf("Sent message to room %v: %v\n", roomId, replyMessage)
+            return fmt.Sprintf("Sent message to room %v: %v\n", roomId, replyMessage), nil
+        }
     }
 
     return "", fmt.Errorf("Failed to return anything meaningful")
@@ -198,15 +201,18 @@ func (nomi *NomiKin) SendNomiMessage (message *string) (string, error) {
     }
 
     messageSendUrl := UrlComponents["SendMessage"][0] + "/" + nomi.CompanionId + "/chat"
-    result, err := nomi.ApiCall(messageSendUrl, "Post", bodyMap)
+    response, err := nomi.ApiCall(messageSendUrl, "Post", bodyMap)
     if err != nil {
         log.Printf("Error from API call: %v", err.Error())
     }
 
-    if replyMessage, ok := result["replyMessage"].(map[string]interface{}); ok {
-        log.Printf("Received reply message from Nomi %v: %v\n", nomi.CompanionId, replyMessage)
-        if textValue, ok := replyMessage["text"].(string); ok {
-            return textValue, nil
+    var result map[string]interface{}
+    if err := json.Unmarshal([]byte(response), &result); err != nil {
+        if replyMessage, ok := result["replyMessage"].(map[string]interface{}); ok {
+            log.Printf("Received reply message from Nomi %v: %v\n", nomi.CompanionId, replyMessage)
+            if textValue, ok := replyMessage["text"].(string); ok {
+                return textValue, nil
+            }
         }
     }
 
