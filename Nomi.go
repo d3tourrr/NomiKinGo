@@ -31,7 +31,7 @@ func (nomi *NomiKin) Init() {
 }
 
 func (nomi *NomiKin) ApiCall(endpoint string, method string, body interface{}) ([]byte, error) {
-    log.Printf("API Call\n Endpoint: %v\n Method: %v", endpoint, method)
+    log.Printf("API Call\n Endpoint: %v\n Method: %v\n Body: %v", endpoint, method, body)
     headers := map[string]string{
         "authorization": nomi.ApiKey,
         "content-type": "application/json",
