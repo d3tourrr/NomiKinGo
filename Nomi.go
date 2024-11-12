@@ -27,7 +27,6 @@ func (nomi *NomiKin) Init() {
     UrlComponents["RoomCreate"] = []string {"https://api.nomi.ai/v1/rooms"}
     UrlComponents["RoomSend"] = []string {"https://api.nomi.ai/v1/rooms", "chat"}
     UrlComponents["RoomReply"] = []string {"https://api.nomi.ai/v1/rooms", "chat/request"}
-    log.Println(UrlComponents["RoomCreate"])
 }
 
 func (nomi *NomiKin) ApiCall(endpoint string, method string, body interface{}) ([]byte, error) {
@@ -37,11 +36,11 @@ func (nomi *NomiKin) ApiCall(endpoint string, method string, body interface{}) (
     }
 
     var jsonBody []byte
-    var bodyBytes *bytes.Reader
+    var bodyBytes *bytes.Buffer
     var err error
     if body != nil {
         jsonBody, err = json.Marshal(body)
-        bodyBytes = bytes.NewReader(jsonBody)
+        bodyBytes = bytes.NewBuffer(jsonBody)
         if err != nil {
             return nil, fmt.Errorf("Error constructing body: %v: ", err)
         }
