@@ -163,7 +163,7 @@ func (nomi *NomiKin) SendNomiRoomMessage(message *string, roomId *string) (strin
     if err != nil {
         log.Printf("Error from API call: %v", err.Error())
     }
-
+    log.Printf("Raw response: %v", string(response))
     var result map[string]interface{}
     if err := json.Unmarshal([]byte(response), &result); err != nil {
         if replyMessage, ok := result["sentMessage"].(map[string]interface{}); ok {
