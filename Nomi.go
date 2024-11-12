@@ -229,6 +229,8 @@ func (nomi *NomiKin) SendNomiMessage (message *string) (string, error) {
 
     var result map[string]interface{}
     if err := json.Unmarshal([]byte(response), &result); err != nil {
+        return "", err
+    } else {
         if replyMessage, ok := result["replyMessage"].(map[string]interface{}); ok {
             log.Printf("Received reply message from Nomi %v: %v\n", nomi.CompanionId, replyMessage)
             if textValue, ok := replyMessage["text"].(string); ok {
