@@ -88,7 +88,6 @@ func (nomi *NomiKin) RoomExists(roomName *string) (bool, error) {
     log.Printf("Checking Nomi %v room %v", nomi.CompanionId, *roomName)
     roomUrl := UrlComponents["RoomCreate"][0]
     roomResult, err := nomi.ApiCall(roomUrl, "Get", nil)
-    var rooms []Room
 
     if err != nil {
         return false, err
@@ -100,14 +99,8 @@ func (nomi *NomiKin) RoomExists(roomName *string) (bool, error) {
         return false, err
     }
 
-    if rooms, ok := roomObj["rooms"].([]Room); ok {
-        log.Printf("Got rooms: %v", rooms)
-    } else {
-        log.Printf("Room output: %v", roomObj["rooms"])
-    }
-
     exists := false
-    for _, r := range rooms {
+    for _, r := range roomObj["rooms"].([]Room) {
         log.Printf("Checking room %v - %v", r.Name, r.Uuid)
         if r.Name == *roomName {
             exists = true
