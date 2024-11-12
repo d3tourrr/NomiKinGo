@@ -14,7 +14,7 @@ var UrlComponents map[string][]string
 
 func Init() {
     log.Println("Entered Init")
-    UrlComponents := make(map[string][]string)
+    UrlComponents = make(map[string][]string)
     UrlComponents["SendMessage"] = []string {"https://api.nomi.ai/v1/nomis", "chat"}
     UrlComponents["RoomCreate"] = []string {"https://api.nomi.ai/v1/rooms"}
     UrlComponents["RoomSend"] = []string {"https://api.nomi.ai/v1/rooms", "chat"}
