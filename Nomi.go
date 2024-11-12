@@ -15,10 +15,7 @@ var UrlComponents map[string][]string
 
 type Room struct {
     Name string
-    BackchannelingEnabled bool
-    Nomis []string
     Uuid string
-    Status string
 }
 
 func (nomi *NomiKin) Init() {
@@ -124,7 +121,7 @@ func (nomi *NomiKin) CreateNomiRoom(name *string, note *string, backchannelingEn
         // TODO: Add the Nomi to the room
         return *name, nil
     } else {
-        roomUrl := UrlComponents["RoomCreate"][0]
+        log.Printf("Creating room: %v", *name)
         bodyMap := map[string]interface{}{
             "name": *name,
             "note": *note,
@@ -132,7 +129,7 @@ func (nomi *NomiKin) CreateNomiRoom(name *string, note *string, backchannelingEn
             "nomiUuids": nomiUuids,
         }
 
-        response, err := nomi.ApiCall(roomUrl, "Post", bodyMap)
+        response, err := nomi.ApiCall(UrlComponents["RoomCreate"][0], "Post", bodyMap)
         if err != nil {
             return "", err
         }
@@ -142,6 +139,8 @@ func (nomi *NomiKin) CreateNomiRoom(name *string, note *string, backchannelingEn
             if roomCreateName, ok := result["name"].(string); ok {
                 log.Printf("Created Nomi %v room: %v\n", nomi.CompanionId, roomCreateName)
                 return roomCreateName, nil
+            } else {
+                log.Printf("Error trying to create room %v: %v", bodyMap["name"], err)
             }
         }
     }
