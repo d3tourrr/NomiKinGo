@@ -5,6 +5,7 @@ import (
     "encoding/json"
     "fmt"
     "log"
+    "io"
     "io/ioutil"
     "net/http"
 )
@@ -36,17 +37,19 @@ func (nomi *NomiKin) ApiCall(endpoint string, method string, body interface{}) (
     }
 
     var jsonBody []byte
-    var bodyBytes *bytes.Buffer
+    var bodyReader io.Reader
     var err error
     if body != nil {
         jsonBody, err = json.Marshal(body)
-        bodyBytes = bytes.NewBuffer(jsonBody)
+        bodyReader = bytes.NewBuffer(jsonBody)
         if err != nil {
             return nil, fmt.Errorf("Error constructing body: %v: ", err)
         }
+    } else {
+        bodyReader = nil
     }
     
-    req, err := http.NewRequest(method, endpoint, bodyBytes)
+    req, err := http.NewRequest(method, endpoint, bodyReader)
     if err != nil {
         return nil, fmt.Errorf("Error reading HTTP request: %v", err)
     }
