@@ -45,7 +45,7 @@ func (nomi *NomiKin) Init() {
 
 func (nomi *NomiKin) ApiCall(endpoint string, method string, body interface{}) ([]byte, error) {
     method = strings.ToUpper(method)
-    log.Printf("API Call\n Endpoint: %v\n Method: %v\n Body: %v", endpoint, method, body)
+
     headers := map[string]string{
         "Authorization": nomi.ApiKey,
         "Content-Type": "application/json",
@@ -176,13 +176,12 @@ func (nomi *NomiKin) SendNomiRoomMessage(message *string, roomId *string) (strin
         log.Printf("Error from API call: %v", err.Error())
     }
 
-    log.Printf("Raw response: %v", string(response))
     var result SentMessageContainer
     if err := json.Unmarshal([]byte(response), &result); err != nil {
         log.Printf("Error parsing sent message response:\n %v", result)
     } else {
-        log.Printf("Sent message to room %v: %v\n", roomId, result.SentMessage.Text)
-        return fmt.Sprintf("Sent message to room %v: %v\n", roomId, result.SentMessage.Text), nil
+        log.Printf("Sent message to room %d: %v\n", roomId, result.SentMessage.Text)
+        return fmt.Sprintf("Sent message to room %d: %v\n", roomId, result.SentMessage.Text), nil
     }
 
     return "", err
@@ -220,6 +219,9 @@ func (nomi *NomiKin) SendNomiMessage (message *string) (string, error) {
     bodyMap := map[string]string{
         "messageText": *message,
     }
+
+    bodyJson, err := json.Marshal(bodyMap)
+    log.Printf("Sending message to Nomi %v: %v", nomi.CompanionId, string(bodyJson))
 
     messageSendUrl := UrlComponents["SendMessage"][0] + "/" + nomi.CompanionId + "/" + UrlComponents["SendMessage"][1]
     response, err := nomi.ApiCall(messageSendUrl, "Post", bodyMap)
