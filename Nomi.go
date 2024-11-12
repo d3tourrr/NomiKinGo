@@ -203,7 +203,7 @@ func (nomi *NomiKin) RequestNomiRoomReply(roomId *string, nomiId *string) (strin
     if err := json.Unmarshal([]byte(response), &result); err != nil {
         log.Printf("Error requesting Nomi %v response: %v", nomi.CompanionId, err)
     } else {
-        log.Printf("Sent message to room %s: %v\n", *roomId, result.ReplyMessage.Text)
+        log.Printf("Received Message from Nomi %v to room %s: %v\n", nomi.CompanionId, *roomId, result.ReplyMessage.Text)
         return result.ReplyMessage.Text, nil
     }
 
