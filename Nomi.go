@@ -15,8 +15,7 @@ var UrlComponents map[string][]string
 
 type Room struct {
     Name string
-    Note string
-    backchannelingEnabled bool
+    BackchannelingEnabled bool
     Nomis []string
     Uuid string
     Status string
