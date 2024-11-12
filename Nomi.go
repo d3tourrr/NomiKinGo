@@ -8,6 +8,7 @@ import (
     "io"
     "io/ioutil"
     "net/http"
+    "strings"
 )
 
 var UrlComponents map[string][]string
@@ -31,10 +32,11 @@ func (nomi *NomiKin) Init() {
 }
 
 func (nomi *NomiKin) ApiCall(endpoint string, method string, body interface{}) ([]byte, error) {
-    log.Printf("API Call\n Endpoint: %v\n Method: %v\n Body: %v\n API Key: %v", endpoint, method, body, nomi.ApiKey)
+    method = strings.ToUpper(method)
+    log.Printf("API Call\n Endpoint: %v\n Method: %v\n Body: %v", endpoint, method, body)
     headers := map[string]string{
-        "authorization": nomi.ApiKey,
-        "content-type": "application/json",
+        "Authorization": nomi.ApiKey,
+        "Content-Type": "application/json",
     }
 
     var jsonBody []byte
@@ -42,15 +44,17 @@ func (nomi *NomiKin) ApiCall(endpoint string, method string, body interface{}) (
     var err error
 
     if body != nil {
+        log.Println("Body is not nil")
         jsonBody, err = json.Marshal(body)
         if err != nil {
             return nil, fmt.Errorf("Error constructing body: %v: ", err)
         }
         bodyReader = bytes.NewBuffer(jsonBody)
     } else {
+        log.Println("Body is nil")
         bodyReader = nil
     }
-    
+
     req, err := http.NewRequest(method, endpoint, bodyReader)
     if err != nil {
         return nil, fmt.Errorf("Error reading HTTP request: %v", err)
