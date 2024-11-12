@@ -44,8 +44,6 @@ func (nomi *NomiKin) ApiCall(endpoint string, method string, body interface{}) (
         if err != nil {
             return nil, fmt.Errorf("Error constructing body: %v: ", err)
         }
-    } else {
-        bodyBytes = nil
     }
     
     req, err := http.NewRequest(method, endpoint, bodyBytes)
