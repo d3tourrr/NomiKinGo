@@ -94,9 +94,14 @@ func (nomi *NomiKin) RoomExists(roomName *string) (bool, error) {
         return false, err
     }
 
-    if err := json.Unmarshal([]byte(roomResult), &rooms); err != nil {
+    var roomObj map[string]interface{}
+    if err := json.Unmarshal([]byte(roomResult), &roomObj); err != nil {
         log.Printf("Cannot unmarshal to room: %v", string(roomResult))
         return false, err
+    }
+
+    if rooms, ok := roomObj["rooms"].([]Room); ok {
+        log.Printf("Got rooms: %v", rooms)
     }
 
     exists := false
