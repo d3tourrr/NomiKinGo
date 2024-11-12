@@ -166,9 +166,11 @@ func (nomi *NomiKin) SendNomiRoomMessage(message *string, roomId *string) (strin
     log.Printf("Raw response: %v", string(response))
     var result map[string]interface{}
     if err := json.Unmarshal([]byte(response), &result); err != nil {
-        if replyMessage, ok := result["sentMessage"].(map[string]interface{}); ok {
-            log.Printf("Sent message to room %v: %v\n", roomId, replyMessage)
-            return fmt.Sprintf("Sent message to room %v: %v\n", roomId, replyMessage), nil
+        if sentMessage, ok := result["sentMessage"].(map[string]interface{}); ok {
+            if messageText, ok := sentMessage["text"].(string); ok {
+                log.Printf("Sent message to room %v: %v\n", roomId, messageText)
+                return fmt.Sprintf("Sent message to room %v: %v\n", roomId, messageText), nil
+            }
         } else {
             log.Printf("Error parsing sent message response:\n %v", result)
         }
@@ -191,9 +193,11 @@ func (nomi *NomiKin) RequestNomiRoomReply(roomId *string, nomiId *string) (strin
 
     var result map[string]interface{}
     if err := json.Unmarshal([]byte(response), &result); err != nil {
-        if replyMessage, ok := result["sentMessage"].(map[string]interface{}); ok {
-            log.Printf("Sent message to room %v: %v\n", roomId, replyMessage)
-            return fmt.Sprintf("Sent message to room %v: %v\n", roomId, replyMessage), nil
+        if replyMessage, ok := result["replyMessage"].(map[string]interface{}); ok {
+            if messageText, ok := replyMessage["text"].(string); ok {
+                log.Printf("Sent message to room %v: %v\n", roomId, messageText)
+                return messageText, nil
+            }
         }
     }
 
