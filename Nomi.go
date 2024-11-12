@@ -75,6 +75,7 @@ func (nomi *NomiKin) ApiCall(endpoint string, method string, body interface{}) (
 
 func (nomi *NomiKin) RoomExists(roomName *string) (bool, error) {
     log.Print("Entered RoomExists")
+    nomi.Init()
     for _, val := range UrlComponents {
         log.Println(val[0])
     }
