@@ -23,15 +23,15 @@ type RoomContainer struct {
 }
 
 type Message struct {
-    Text string `json:"text"`
+    Text string
 }
 
 type SentMessageContainer struct {
-    SentMessage Message `json:"sentMessage"`
+    SentMessage Message
 }
 
 type ReplyMessageContainer struct {
-    ReplyMessage Message `json:"replyMessage"`
+    ReplyMessage Message
 }
 
 func (nomi *NomiKin) Init() {
@@ -179,13 +179,13 @@ func (nomi *NomiKin) SendNomiRoomMessage(message *string, roomId *string) (strin
     log.Printf("Raw response: %v", string(response))
     var result SentMessageContainer
     if err := json.Unmarshal([]byte(response), &result); err != nil {
+        log.Printf("Error parsing sent message response:\n %v", result)
+    } else {
         log.Printf("Sent message to room %v: %v\n", roomId, result.SentMessage.Text)
         return fmt.Sprintf("Sent message to room %v: %v\n", roomId, result.SentMessage.Text), nil
-    } else {
-        log.Printf("Error parsing sent message response:\n %v", result)
     }
 
-    return "", fmt.Errorf("Failed to return anything meaningful")
+    return "", err
 }
 
 func (nomi *NomiKin) RequestNomiRoomReply(roomId *string, nomiId *string) (string, error) {
@@ -202,6 +202,8 @@ func (nomi *NomiKin) RequestNomiRoomReply(roomId *string, nomiId *string) (strin
 
     var result ReplyMessageContainer
     if err := json.Unmarshal([]byte(response), &result); err != nil {
+        log.Printf("Error requesting Nomi %v response: %v", nomi.CompanionId, err)
+    } else {
         log.Printf("Sent message to room %v: %v\n", roomId, result.ReplyMessage.Text)
         return result.ReplyMessage.Text, nil
     }
