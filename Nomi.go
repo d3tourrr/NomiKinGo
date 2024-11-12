@@ -37,15 +37,19 @@ func (nomi *NomiKin) ApiCall(endpoint string, method string, body interface{}) (
     }
 
     var jsonBody []byte
+    var bodyBytes *bytes.Reader
     var err error
     if body != nil {
         jsonBody, err = json.Marshal(body)
+        bodyBytes = bytes.NewReader(jsonBody)
         if err != nil {
             return nil, fmt.Errorf("Error constructing body: %v: ", err)
         }
+    } else {
+        bodyBytes = nil
     }
     
-    req, err := http.NewRequest(method, endpoint, bytes.NewBuffer(jsonBody))
+    req, err := http.NewRequest(method, endpoint, bodyBytes)
     if err != nil {
         return nil, fmt.Errorf("Error reading HTTP request: %v", err)
     }
@@ -94,6 +98,7 @@ func (nomi *NomiKin) RoomExists(roomName *string) (bool, error) {
 
     exists := false
     for _, r := range rooms {
+        log.Printf("Checking room %v - %v", r.Name, r.Uuid)
         if r.Name == *roomName {
             exists = true
             break
