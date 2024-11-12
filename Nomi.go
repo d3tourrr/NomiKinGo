@@ -102,6 +102,8 @@ func (nomi *NomiKin) RoomExists(roomName *string) (bool, error) {
 
     if rooms, ok := roomObj["rooms"].([]Room); ok {
         log.Printf("Got rooms: %v", rooms)
+    } else {
+        log.Printf("Room output: %v", roomObj["rooms"])
     }
 
     exists := false
