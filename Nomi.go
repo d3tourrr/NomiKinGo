@@ -7,7 +7,6 @@ import (
     "log"
     "io/ioutil"
     "net/http"
-    "regexp"
 )
 
 var UrlComponents map[string][]string
