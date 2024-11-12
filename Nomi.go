@@ -181,9 +181,8 @@ func (nomi *NomiKin) SendNomiRoomMessage(message *string, roomId *string) (strin
     if err := json.Unmarshal([]byte(response), &result); err != nil {
         log.Printf("Error parsing sent message response:\n %v", result)
     } else {
-        displayId, _ := strconv.ParseInt(*roomId, 10, 64)
-        log.Printf("Sent message to room %d: %v\n", displayId, result.SentMessage.Text)
-        return fmt.Sprintf("Sent message to room %d: %v\n", displayId, result.SentMessage.Text), nil
+        log.Printf("Sent message to room %s: %v\n", *roomId, result.SentMessage.Text)
+        return fmt.Sprintf("Sent message to room %s: %v\n", *roomId, result.SentMessage.Text), nil
     }
 
     return "", err
@@ -205,8 +204,7 @@ func (nomi *NomiKin) RequestNomiRoomReply(roomId *string, nomiId *string) (strin
     if err := json.Unmarshal([]byte(response), &result); err != nil {
         log.Printf("Error requesting Nomi %v response: %v", nomi.CompanionId, err)
     } else {
-        displayId, _ := strconv.ParseInt(*roomId, 10, 64)
-        log.Printf("Sent message to room %v: %v\n", displayId, result.ReplyMessage.Text)
+        log.Printf("Sent message to room %s: %v\n", *roomId, result.ReplyMessage.Text)
         return result.ReplyMessage.Text, nil
     }
 
