@@ -88,43 +88,41 @@ func (nomi *NomiKin) ApiCall(endpoint string, method string, body interface{}) (
     return responseBody, nil
 }
 
-func (nomi *NomiKin) RoomExists(roomName *string) (bool, error) {
+func (nomi *NomiKin) RoomExists(roomName *string) (*Room, error) {
     log.Printf("Checking Nomi %v room %v", nomi.CompanionId, *roomName)
     roomUrl := UrlComponents["RoomCreate"][0]
     roomResult, err := nomi.ApiCall(roomUrl, "Get", nil)
 
     if err != nil {
-        return false, err
+        return nil, err
     }
 
     var rooms RoomContainer
     if err := json.Unmarshal([]byte(roomResult), &rooms); err != nil {
         log.Printf("Cannot unmarshal to room: %v", string(roomResult))
-        return false, err
+        return nil, err
     }
 
-    exists := false
     for _, r := range rooms.Rooms {
         log.Printf("Checking room %v - %v", r.Name, r.Uuid)
         if r.Name == *roomName {
-            exists = true
-            break
+            return &r, nil
         }
     }
 
-    return exists, nil
+    return nil, nil
 }
 
-func (nomi *NomiKin) CreateNomiRoom(name *string, note *string, backchannelingEnabled *bool, nomiUuids []string) (string, error) {
-    roomExists, err := nomi.RoomExists(name)
+func (nomi *NomiKin) CreateNomiRoom(name *string, note *string, backchannelingEnabled *bool, nomiUuids []string) (*Room, error) {
+    roomCheck, err := nomi.RoomExists(name)
     if err != nil {
         log.Printf("Error checking if room exists: %v", err)
     }
 
-    log.Printf("Room exists: %v", roomExists)
-    if roomExists {
+    log.Printf("Room exists: %v", roomCheck.Name)
+    if roomCheck != nil {
         // TODO: Add the Nomi to the room
-        return *name, nil
+        return &Room {Name: *name, Uuid: roomCheck.Uuid}, nil
     } else {
         log.Printf("Creating room: %v", *name)
         bodyMap := map[string]interface{}{
@@ -136,21 +134,21 @@ func (nomi *NomiKin) CreateNomiRoom(name *string, note *string, backchannelingEn
 
         response, err := nomi.ApiCall(UrlComponents["RoomCreate"][0], "Post", bodyMap)
         if err != nil {
-            return "", err
+            return nil, err
         }
 
         var result map[string]interface{}
         if err := json.Unmarshal([]byte(response), &result); err != nil {
             if roomCreateName, ok := result["name"].(string); ok {
                 log.Printf("Created Nomi %v room: %v\n", nomi.CompanionId, roomCreateName)
-                return roomCreateName, nil
+                return &Room {Name: roomCreateName, Uuid: result["uuid"].(string)}, nil
             } else {
                 log.Printf("Error trying to create room %v: %v", bodyMap["name"], err)
             }
         }
     }
 
-    return "", fmt.Errorf("Failed to return anything meaningful")
+    return nil, fmt.Errorf("Failed to return anything meaningful")
 }
 
 func (nomi *NomiKin) SendNomiRoomMessage(message *string, roomId *string) (string, error) {
