@@ -99,7 +99,7 @@ func (nomi *NomiKin) ApiCall(endpoint string, method string, body interface{}) (
             return nil, fmt.Errorf("Error unmarshalling error response: %v\n%v", err, string(responseBody))
         }
 
-        return nil, fmt.Errorf("Error response from Nomi API: %v", string(responseBody))
+        return nil, fmt.Errorf("Error response from Nomi API\n Error Code: %v\n Response Body: %v\n",resp.StatusCode, string(responseBody))
     }
 
     return responseBody, nil
