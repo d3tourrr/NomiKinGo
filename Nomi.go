@@ -68,6 +68,7 @@ func (nomi *NomiKin) ApiCall(endpoint string, method string, body interface{}) (
             return nil, fmt.Errorf("Error constructing body: %v: ", err)
         }
         bodyReader = bytes.NewBuffer(jsonBody)
+        log.Printf("API Call Body JSON: %v", jsonBody)
     } else {
         bodyReader = nil
     }
