@@ -41,7 +41,7 @@ type ReplyMessageContainer struct {
 }
 
 func (nomi *NomiKin) Init() {
-    log.Println("Entered Init")
+    log.Println("Nomi Init")
     UrlComponents = make(map[string][]string)
     UrlComponents["SendMessage"] = []string {"https://api.nomi.ai/v1/nomis", "chat"}
     UrlComponents["RoomCreate"] = []string {"https://api.nomi.ai/v1/rooms"}
@@ -92,13 +92,12 @@ func (nomi *NomiKin) ApiCall(endpoint string, method string, body interface{}) (
         return nil, fmt.Errorf("Error reading HTTP response: %v", err)
     }
 
-    if resp.StatusCode != http.StatusOK {
+    if resp.StatusCode < 200 || resp.StatusCode > 299 {
         var errorResult map[string]interface{}
         if err := json.Unmarshal(responseBody, &errorResult); err != nil {
-            return nil, fmt.Errorf("Error unmarshalling error response: %v\n%v", err, string(responseBody))
+            return nil, fmt.Errorf("Error unmarshalling API error response: %v\n%v", err, string(responseBody))
         }
-
-        return nil, fmt.Errorf("Error response from Nomi API: %v", string(responseBody))
+        return nil, fmt.Errorf("Error response from Nomi API\n Error Code: %v\n Response Body: %v\n",resp.StatusCode, string(responseBody))
     }
 
     return responseBody, nil
@@ -132,10 +131,11 @@ func (nomi *NomiKin) CreateNomiRoom(name *string, note *string, backchannelingEn
     roomCheck, err := nomi.RoomExists(name)
     if err != nil {
         log.Printf("Error checking if room exists: %v", err)
+        return nil, err
     }
 
-    log.Printf("Room exists: %v. Nomi %v will be added if not already included.", roomCheck.Name, nomi.CompanionId)
     if roomCheck != nil {
+        log.Printf("Room exists: %v. Nomi %v will be added if not already included.", name, nomi.CompanionId)
         inRoom := false
         for _, n := range roomCheck.Nomis {
             if n.Uuid == nomi.CompanionId {
@@ -151,24 +151,23 @@ func (nomi *NomiKin) CreateNomiRoom(name *string, note *string, backchannelingEn
                 roomNomis = append(roomNomis, n.Uuid)
             }
 
-            roomNomisJson, err := json.Marshal(roomNomis)
-            if err != nil {
-                log.Printf("Error converting room Nomis %v to JSON: %v", roomNomis, err)
-            }
-
             bodyMap := map[string]interface{}{
                 "name": *name,
                 "note": *note,
                 "backchannelingEnabled": backchannelingEnabled,
-                "nomiUuids": roomNomisJson,
+                "nomiUuids": roomNomis,
             }
 
-            response, err := nomi.ApiCall(UrlComponents["RoomCreate"][0], "Put", bodyMap)
+            roomUpdateUrl := UrlComponents["RoomCreate"][0] + "/" + roomCheck.Uuid
+            response, err := nomi.ApiCall(roomUpdateUrl, "Put", bodyMap)
             if err != nil {
                 return nil, err
             }
+
             var result map[string]interface{}
             if err := json.Unmarshal([]byte(response), &result); err != nil {
+                log.Printf("Error unmarshaling response from RoomCreate: %v", err)
+            } else {
                 if roomCreateName, ok := result["name"].(string); ok {
                     log.Printf("Created Nomi %v room: %v\n", nomi.CompanionId, roomCreateName)
                     return &Room {Name: roomCreateName, Uuid: result["uuid"].(string)}, nil
@@ -181,7 +180,7 @@ func (nomi *NomiKin) CreateNomiRoom(name *string, note *string, backchannelingEn
             log.Printf("Nomi %v is already in room %v", nomi.CompanionId, roomCheck.Name)
         }
 
-        return &Room {Name: *name, Uuid: roomCheck.Uuid}, nil
+        return roomCheck, nil
     } else {
         log.Printf("Creating room: %v", *name)
         bodyMap := map[string]interface{}{
@@ -193,18 +192,18 @@ func (nomi *NomiKin) CreateNomiRoom(name *string, note *string, backchannelingEn
 
         response, err := nomi.ApiCall(UrlComponents["RoomCreate"][0], "Post", bodyMap)
         if err != nil {
+            log.Printf("Error running Create Room: %v", err)
             return nil, err
         }
 
-        var result map[string]interface{}
+        var result Room
         if err := json.Unmarshal([]byte(response), &result); err != nil {
-            if roomCreateName, ok := result["name"].(string); ok {
-                log.Printf("Created Nomi %v room: %v\n", nomi.CompanionId, roomCreateName)
-                return &Room {Name: roomCreateName, Uuid: result["uuid"].(string)}, nil
-            } else {
-                log.Printf("Error trying to create room %v: %v", bodyMap["name"], err)
-            }
+            log.Printf("Error trying to unmarshal create room %v: %v", bodyMap["name"], err)
+        } else {
+            log.Printf("Created Nomi %v room: %v\n", nomi.CompanionId, result.Name)
+            return &result, nil
         }
+
     }
 
     return nil, fmt.Errorf("Failed to return anything meaningful")
