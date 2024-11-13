@@ -93,7 +93,7 @@ func (nomi *NomiKin) ApiCall(endpoint string, method string, body interface{}) (
         return nil, fmt.Errorf("Error reading HTTP response: %v", err)
     }
 
-    if resp.StatusCode != http.StatusOK {
+    if resp.StatusCode < 200 || resp.StatusCode > 299 {
         var errorResult map[string]interface{}
         if err := json.Unmarshal(responseBody, &errorResult); err != nil {
             return nil, fmt.Errorf("Error unmarshalling error response: %v\n%v", err, string(responseBody))
