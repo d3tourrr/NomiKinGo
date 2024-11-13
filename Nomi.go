@@ -41,7 +41,7 @@ type ReplyMessageContainer struct {
 }
 
 func (nomi *NomiKin) Init() {
-    log.Println("Entered Init")
+    log.Println("Nomi Init")
     UrlComponents = make(map[string][]string)
     UrlComponents["SendMessage"] = []string {"https://api.nomi.ai/v1/nomis", "chat"}
     UrlComponents["RoomCreate"] = []string {"https://api.nomi.ai/v1/rooms"}
@@ -51,7 +51,6 @@ func (nomi *NomiKin) Init() {
 
 func (nomi *NomiKin) ApiCall(endpoint string, method string, body interface{}) ([]byte, error) {
     method = strings.ToUpper(method)
-    log.Printf("API Call:\n Method: %v\n Endpoint: %v\n Body: %v\n", method, endpoint, body)
 
     headers := map[string]string{
         "Authorization": nomi.ApiKey,
@@ -68,7 +67,6 @@ func (nomi *NomiKin) ApiCall(endpoint string, method string, body interface{}) (
             return nil, fmt.Errorf("Error constructing body: %v: ", err)
         }
         bodyReader = bytes.NewBuffer(jsonBody)
-        log.Printf("API Call Body JSON: %v", jsonBody)
     } else {
         bodyReader = nil
     }
@@ -97,9 +95,8 @@ func (nomi *NomiKin) ApiCall(endpoint string, method string, body interface{}) (
     if resp.StatusCode < 200 || resp.StatusCode > 299 {
         var errorResult map[string]interface{}
         if err := json.Unmarshal(responseBody, &errorResult); err != nil {
-            return nil, fmt.Errorf("Error unmarshalling error response: %v\n%v", err, string(responseBody))
+            return nil, fmt.Errorf("Error unmarshalling API error response: %v\n%v", err, string(responseBody))
         }
-
         return nil, fmt.Errorf("Error response from Nomi API\n Error Code: %v\n Response Body: %v\n",resp.StatusCode, string(responseBody))
     }
 
@@ -166,6 +163,7 @@ func (nomi *NomiKin) CreateNomiRoom(name *string, note *string, backchannelingEn
             if err != nil {
                 return nil, err
             }
+
             var result map[string]interface{}
             if err := json.Unmarshal([]byte(response), &result); err != nil {
                 log.Printf("Error unmarshaling response from RoomCreate: %v", err)
