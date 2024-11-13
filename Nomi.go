@@ -200,18 +200,14 @@ func (nomi *NomiKin) CreateNomiRoom(name *string, note *string, backchannelingEn
             return nil, err
         }
 
-        var result map[string]interface{}
+        var result Room
         if err := json.Unmarshal([]byte(response), &result); err != nil {
             log.Printf("Error trying to unmarshal create room %v: %v", bodyMap["name"], err)
         } else {
-            if roomCreateName, ok := result["name"].(string); ok {
-                log.Printf("Created Nomi %v room: %v\n", nomi.CompanionId, roomCreateName)
-                return &Room {Name: roomCreateName, Uuid: result["uuid"].(string)}, nil
-            } else {
-                log.Printf("Error trying to create room %v: %v", bodyMap["name"], err)
-            }
-
+            log.Printf("Created Nomi %v room: %v\n", nomi.CompanionId, result.Name)
+            return &result, nil
         }
+
     }
 
     return nil, fmt.Errorf("Failed to return anything meaningful")
