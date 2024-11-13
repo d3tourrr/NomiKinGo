@@ -151,11 +151,16 @@ func (nomi *NomiKin) CreateNomiRoom(name *string, note *string, backchannelingEn
                 roomNomis = append(roomNomis, n.Uuid)
             }
 
+            roomNomisJson, err := json.Marshal(roomNomis)
+            if err != nil {
+                log.Printf("Error converting room Nomis %v to JSON: %v", roomNomis, err)
+            }
+
             bodyMap := map[string]interface{}{
                 "name": *name,
                 "note": *note,
                 "backchannelingEnabled": backchannelingEnabled,
-                "nomiUuids": roomNomis,
+                "nomiUuids": roomNomisJson,
             }
 
             response, err := nomi.ApiCall(UrlComponents["RoomCreate"][0], "Put", bodyMap)
