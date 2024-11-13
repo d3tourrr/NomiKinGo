@@ -134,7 +134,7 @@ func (nomi *NomiKin) CreateNomiRoom(name *string, note *string, backchannelingEn
         log.Printf("Error checking if room exists: %v", err)
     }
 
-    log.Printf("Room exists: %v", roomCheck.Name)
+    log.Printf("Room exists: %v. Nomi %v will be added if not already included.", roomCheck.Name, nomi.CompanionId)
     if roomCheck != nil {
         inRoom := false
         for _, n := range roomCheck.Nomis {
