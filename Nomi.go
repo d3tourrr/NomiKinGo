@@ -165,7 +165,8 @@ func (nomi *NomiKin) CreateNomiRoom(name *string, note *string, backchannelingEn
                 "nomiUuids": roomNomisJson,
             }
 
-            response, err := nomi.ApiCall(UrlComponents["RoomCreate"][0], "Put", bodyMap)
+            roomUpdateUrl := UrlComponents["RoomCreate"][0] + "/" + roomCheck.Uuid
+            response, err := nomi.ApiCall(roomUpdateUrl, "Put", bodyMap)
             if err != nil {
                 return nil, err
             }
