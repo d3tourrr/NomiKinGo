@@ -197,6 +197,7 @@ func (nomi *NomiKin) CreateNomiRoom(name *string, note *string, backchannelingEn
 
         response, err := nomi.ApiCall(UrlComponents["RoomCreate"][0], "Post", bodyMap)
         if err != nil {
+            log.Printf("Error running Create Room: %v", err)
             return nil, err
         }
 
