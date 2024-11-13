@@ -169,6 +169,8 @@ func (nomi *NomiKin) CreateNomiRoom(name *string, note *string, backchannelingEn
             }
             var result map[string]interface{}
             if err := json.Unmarshal([]byte(response), &result); err != nil {
+                log.Printf("Error unmarshaling response from RoomCreate: %v", err)
+            } else {
                 if roomCreateName, ok := result["name"].(string); ok {
                     log.Printf("Created Nomi %v room: %v\n", nomi.CompanionId, roomCreateName)
                     return &Room {Name: roomCreateName, Uuid: result["uuid"].(string)}, nil
@@ -198,12 +200,15 @@ func (nomi *NomiKin) CreateNomiRoom(name *string, note *string, backchannelingEn
 
         var result map[string]interface{}
         if err := json.Unmarshal([]byte(response), &result); err != nil {
+            log.Printf("Error trying to unmarshal create room %v: %v", bodyMap["name"], err)
+        } else {
             if roomCreateName, ok := result["name"].(string); ok {
                 log.Printf("Created Nomi %v room: %v\n", nomi.CompanionId, roomCreateName)
                 return &Room {Name: roomCreateName, Uuid: result["uuid"].(string)}, nil
             } else {
                 log.Printf("Error trying to create room %v: %v", bodyMap["name"], err)
             }
+
         }
     }
 
