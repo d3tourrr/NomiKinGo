@@ -13,9 +13,15 @@ import (
 
 var UrlComponents map[string][]string
 
+type Nomi struct {
+    Uuid string
+    Name string
+}
+
 type Room struct {
     Name string
     Uuid string
+    Nomis []Nomi
 }
 
 type RoomContainer struct {
@@ -128,9 +134,48 @@ func (nomi *NomiKin) CreateNomiRoom(name *string, note *string, backchannelingEn
         log.Printf("Error checking if room exists: %v", err)
     }
 
-    log.Printf("Room exists: %v", roomCheck.Name)
+    log.Printf("Room exists: %v. Nomi %v will be added if not already included.", roomCheck.Name, nomi.CompanionId)
     if roomCheck != nil {
-        // TODO: Add the Nomi to the room
+        inRoom := false
+        for _, n := range roomCheck.Nomis {
+            if n.Uuid == nomi.CompanionId {
+                inRoom = true
+                break
+            }
+        }
+
+        if !inRoom {
+            log.Printf("Adding Nomi %v to room %v", nomi.CompanionId, roomCheck.Name)
+            roomNomis := []string{nomi.CompanionId}
+            for _, n := range roomCheck.Nomis {
+                roomNomis = append(roomNomis, n.Uuid)
+            }
+
+            bodyMap := map[string]interface{}{
+                "name": *name,
+                "note": *note,
+                "backchannelingEnabled": backchannelingEnabled,
+                "nomiUuids": roomNomis,
+            }
+
+            response, err := nomi.ApiCall(UrlComponents["RoomCreate"][0], "Put", bodyMap)
+            if err != nil {
+                return nil, err
+            }
+            var result map[string]interface{}
+            if err := json.Unmarshal([]byte(response), &result); err != nil {
+                if roomCreateName, ok := result["name"].(string); ok {
+                    log.Printf("Created Nomi %v room: %v\n", nomi.CompanionId, roomCreateName)
+                    return &Room {Name: roomCreateName, Uuid: result["uuid"].(string)}, nil
+                } else {
+                    log.Printf("Error trying to create room %v: %v", bodyMap["name"], err)
+                }
+            }
+
+        } else {
+            log.Printf("Nomi %v is already in room %v", nomi.CompanionId, roomCheck.Name)
+        }
+
         return &Room {Name: *name, Uuid: roomCheck.Uuid}, nil
     } else {
         log.Printf("Creating room: %v", *name)
