@@ -132,10 +132,11 @@ func (nomi *NomiKin) CreateNomiRoom(name *string, note *string, backchannelingEn
     roomCheck, err := nomi.RoomExists(name)
     if err != nil {
         log.Printf("Error checking if room exists: %v", err)
+        return nil, err
     }
 
-    log.Printf("Room exists: %v. Nomi %v will be added if not already included.", name, nomi.CompanionId)
     if roomCheck != nil {
+        log.Printf("Room exists: %v. Nomi %v will be added if not already included.", name, nomi.CompanionId)
         inRoom := false
         for _, n := range roomCheck.Nomis {
             if n.Uuid == nomi.CompanionId {
@@ -183,7 +184,7 @@ func (nomi *NomiKin) CreateNomiRoom(name *string, note *string, backchannelingEn
             log.Printf("Nomi %v is already in room %v", nomi.CompanionId, roomCheck.Name)
         }
 
-        return &Room {Name: *name, Uuid: roomCheck.Uuid}, nil
+        return roomCheck, nil
     } else {
         log.Printf("Creating room: %v", *name)
         bodyMap := map[string]interface{}{
