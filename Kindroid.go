@@ -65,7 +65,7 @@ func (kin *NomiKin) SendKindroidApiCall(endpoint string, method string, body int
     return bodyResponse, nil
 }
 
-func (kin *NomiKin) SendKindroidMessage(message *string) (*string, error) {
+func (kin *NomiKin) SendKindroidMessage(message *string) (string, error) {
     log.Printf("Sending message to Kin %v: %v", kin.CompanionId, message)
     endpoint := UrlComponents["SendMessage"][0]
     body := KinMessage{
@@ -74,30 +74,30 @@ func (kin *NomiKin) SendKindroidMessage(message *string) (*string, error) {
     }
     bodyResponse, err := kin.SendKindroidApiCall(endpoint, "POST", body, nil)
     if err != nil {
-        return nil, fmt.Errorf("Error sending message to Kin: %v", err)
+        return "", fmt.Errorf("Error sending message to Kin: %v", err)
     }
 
 
     kinReply := string(bodyResponse)
-    return &kinReply, nil
+    return kinReply, nil
 }
 
-func (kin *NomiKin) SendKindroidChatBreak(message *KinChatBreak) (*string, error) {
+func (kin *NomiKin) SendKindroidChatBreak(message *KinChatBreak) (string, error) {
     log.Printf("Sending chat break to Kin %v: %v", kin.CompanionId, message.greeting)
     endpoint := UrlComponents["ChatBreak"][0]
     bodyResponse, err := kin.SendKindroidApiCall(endpoint, "POST", message, nil)
     if err != nil {
-        return nil, fmt.Errorf("Error sending chat break to Kin: %v", err)
+        return "", fmt.Errorf("Error sending chat break to Kin: %v", err)
     }
 
     kinReply := string(bodyResponse)
     if kinReply == "" {
         kinReply = "Chat break successful"
     }
-    return &kinReply, nil
+    return kinReply, nil
 }
 
-func (kin *NomiKin) SendKindroidDiscordBot(kinShareId *string, discordNsfwFilter *bool, requester *string, conversation []KinConversation) (*string, error) {
+func (kin *NomiKin) SendKindroidDiscordBot(kinShareId *string, discordNsfwFilter *bool, requester *string, conversation []KinConversation) (string, error) {
     log.Printf("Sending message to Kin %v: %v messages", kin.CompanionId, len(conversation))
     endpoint := UrlComponents["DiscordBot"][0]
     extraHeaders := map[string]string{
@@ -111,9 +111,9 @@ func (kin *NomiKin) SendKindroidDiscordBot(kinShareId *string, discordNsfwFilter
 
     bodyResponse, err := kin.SendKindroidApiCall(endpoint, "POST", body, extraHeaders)
     if err != nil {
-        return nil, fmt.Errorf("Error sending message to Kin: %v", err)
+        return "", fmt.Errorf("Error sending message to Kin: %v", err)
     }
 
     kinReply := string(bodyResponse)
-    return &kinReply, nil
+    return kinReply, nil
 }
