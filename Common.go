@@ -11,40 +11,6 @@ type NomiKin struct {
     CompanionId string
 }
 
-type NomiMessage struct {
-    Text string
-}
-
-type NomiSentMessageContainer struct {
-    SentMessage NomiMessage
-}
-
-type NomiReplyMessageContainer struct {
-    ReplyMessage NomiMessage
-}
-
-type KinMessage struct {
-    ai_id string
-    message string
-}
-
-type KinChatBreak struct {
-    ai_id string
-    greeting string
-}
-
-type KinDiscordBot struct {
-    share_code string
-    enable_filter bool
-    conversation []KinConversation
-}
-
-type KinConversation struct {
-    username string
-    text string
-    timestamp string
-}
-
 var UrlComponents map[string][]string
 
 func (nomi *NomiKin) Init(companionType string) {

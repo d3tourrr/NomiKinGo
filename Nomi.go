@@ -25,6 +25,18 @@ type RoomContainer struct {
     Rooms []Room
 }
 
+type NomiMessage struct {
+    Text string
+}
+
+type NomiSentMessageContainer struct {
+    SentMessage NomiMessage
+}
+
+type NomiReplyMessageContainer struct {
+    ReplyMessage NomiMessage
+}
+
 func (nomi *NomiKin) ApiCall(endpoint string, method string, body interface{}) ([]byte, error) {
     method = strings.ToUpper(method)
 

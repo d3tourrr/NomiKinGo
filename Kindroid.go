@@ -9,6 +9,36 @@ import (
     "net/http"
 )
 
+type KinMessage struct {
+    ai_id string
+    message string
+}
+
+type KinChatBreak struct {
+    ai_id string
+    greeting string
+}
+
+type KinDiscordBot struct {
+    share_code string
+    enable_filter bool
+    conversation []KinConversation
+}
+
+type KinConversation struct {
+    username string
+    text string
+    timestamp string
+}
+
+func (kin *NomiKin) NewConversationItem(username string, text string, timestamp string) KinConversation {
+    return KinConversation{
+        username: username,
+        text: text,
+        timestamp: timestamp,
+    }
+}
+
 func (kin *NomiKin) SendKindroidApiCall(endpoint string, method string, body interface{}, extraHeaders map[string]string) ([]byte, error) {
     headers := map[string]string{
         "Authorization": "Bearer " + kin.ApiKey,
