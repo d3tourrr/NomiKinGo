@@ -65,10 +65,14 @@ func (kin *NomiKin) SendKindroidApiCall(endpoint string, method string, body int
     return bodyResponse, nil
 }
 
-func (kin *NomiKin) SendKindroidMessage(message *KinMessage) (*string, error) {
-    log.Printf("Sending message to Kin %v: %v", kin.CompanionId, message.message)
+func (kin *NomiKin) SendKindroidMessage(message *string) (*string, error) {
+    log.Printf("Sending message to Kin %v: %v", kin.CompanionId, message)
     endpoint := UrlComponents["SendMessage"][0]
-    bodyResponse, err := kin.SendKindroidApiCall(endpoint, "POST", message, nil)
+    body := KinMessage{
+        ai_id: kin.CompanionId,
+        message: *message,
+    }
+    bodyResponse, err := kin.SendKindroidApiCall(endpoint, "POST", body, nil)
     if err != nil {
         return nil, fmt.Errorf("Error sending message to Kin: %v", err)
     }
