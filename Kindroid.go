@@ -31,6 +31,12 @@ type KinConversation struct {
     Timestamp string            `json:"timestamp"`
 }
 
+type KinRoomReply struct {
+    Success bool   `json:"success"`
+    Reply string `json:"reply"`
+    StopReason string `json:"stop_reason"`
+}
+
 func (kin *NomiKin) SendKindroidApiCall(endpoint string, method string, body interface{}, extraHeaders map[string]string) ([]byte, error) {
     headers := map[string]string{
         "Authorization": "Bearer " + kin.ApiKey,
@@ -141,6 +147,10 @@ func (kin *NomiKin) SendKindroidDiscordBot(kinShareId *string, discordNsfwFilter
         return "", fmt.Errorf("Error sending message to Kin: %v", err)
     }
 
-    kinReply := string(bodyResponse)
-    return kinReply, nil
+    var kinReply KinRoomReply
+    err = json.Unmarshal(bodyResponse, &kinReply)
+    if err != nil {
+        return "", fmt.Errorf("Error unmarshalling reply: %v", err)
+    }
+    return kinReply.Reply, nil
 }
