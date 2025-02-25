@@ -20,9 +20,9 @@ type KinChatBreak struct {
 }
 
 type KinDiscordBot struct {
-    share_code string
-    enable_filter bool
-    conversation []KinConversation
+    ShareCode    string         `json:"share_code"`
+    EnableFilter bool           `json:"enable_filter"`
+    Conversation []KinConversation `json:"conversation"`
 }
 
 type KinConversation struct {
@@ -139,9 +139,9 @@ func (kin *NomiKin) SendKindroidDiscordBot(kinShareId *string, discordNsfwFilter
         "X-Kindroid-Requester": *requester,
     }
     body := KinDiscordBot{
-        share_code: *kinShareId,
-        enable_filter: *discordNsfwFilter,
-        conversation: conversation,
+        ShareCode: *kinShareId,
+        EnableFilter: *discordNsfwFilter,
+        Conversation: conversation,
     }
 
     bodyResponse, err := kin.SendKindroidApiCall(endpoint, "POST", body, extraHeaders)
