@@ -6,12 +6,9 @@ import (
     "fmt"
     "log"
     "io"
-    "io/ioutil"
     "net/http"
     "strings"
 )
-
-var UrlComponents map[string][]string
 
 type Nomi struct {
     Uuid string
@@ -28,25 +25,16 @@ type RoomContainer struct {
     Rooms []Room
 }
 
-type Message struct {
+type NomiMessage struct {
     Text string
 }
 
-type SentMessageContainer struct {
-    SentMessage Message
+type NomiSentMessageContainer struct {
+    SentMessage NomiMessage
 }
 
-type ReplyMessageContainer struct {
-    ReplyMessage Message
-}
-
-func (nomi *NomiKin) Init() {
-    log.Println("Nomi Init")
-    UrlComponents = make(map[string][]string)
-    UrlComponents["SendMessage"] = []string {"https://api.nomi.ai/v1/nomis", "chat"}
-    UrlComponents["RoomCreate"] = []string {"https://api.nomi.ai/v1/rooms"}
-    UrlComponents["RoomSend"] = []string {"https://api.nomi.ai/v1/rooms", "chat"}
-    UrlComponents["RoomReply"] = []string {"https://api.nomi.ai/v1/rooms", "chat/request"}
+type NomiReplyMessageContainer struct {
+    ReplyMessage NomiMessage
 }
 
 func (nomi *NomiKin) ApiCall(endpoint string, method string, body interface{}) ([]byte, error) {
@@ -87,7 +75,7 @@ func (nomi *NomiKin) ApiCall(endpoint string, method string, body interface{}) (
 
     defer resp.Body.Close()
 
-    responseBody, err := ioutil.ReadAll(resp.Body)
+    responseBody, err := io.ReadAll(resp.Body)
     if err != nil {
         return nil, fmt.Errorf("Error reading HTTP response: %v", err)
     }
@@ -225,7 +213,7 @@ func (nomi *NomiKin) SendNomiRoomMessage(message *string, roomId *string) (strin
         log.Printf("Error from API call: %v", err.Error())
     }
 
-    var result SentMessageContainer
+    var result NomiSentMessageContainer
     if err := json.Unmarshal([]byte(response), &result); err != nil {
         log.Printf("Error parsing sent message response:\n %v", result)
     } else {
@@ -248,7 +236,7 @@ func (nomi *NomiKin) RequestNomiRoomReply(roomId *string, nomiId *string) (strin
     }
 
 
-    var result ReplyMessageContainer
+    var result NomiReplyMessageContainer
     if err := json.Unmarshal([]byte(response), &result); err != nil {
         log.Printf("Error requesting Nomi %v response: %v", nomi.CompanionId, err)
     } else {
