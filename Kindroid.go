@@ -152,5 +152,10 @@ func (kin *NomiKin) SendKindroidDiscordBot(kinShareId *string, discordNsfwFilter
     if err != nil {
         return "", fmt.Errorf("Error unmarshalling reply: %v", err)
     }
+
+    if !kinReply.Success {
+        return "", fmt.Errorf("Error from Kin API: %v", kinReply.StopReason)
+    }
+
     return kinReply.Reply, nil
 }
