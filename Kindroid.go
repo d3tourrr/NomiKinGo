@@ -31,14 +31,6 @@ type KinConversation struct {
     timestamp string
 }
 
-func (kin *NomiKin) NewConversationItem(username string, text string, timestamp string) KinConversation {
-    return KinConversation{
-        username: username,
-        text: text,
-        timestamp: timestamp,
-    }
-}
-
 func (kin *NomiKin) SendKindroidApiCall(endpoint string, method string, body interface{}, extraHeaders map[string]string) ([]byte, error) {
     headers := map[string]string{
         "Authorization": "Bearer " + kin.ApiKey,
@@ -73,6 +65,9 @@ func (kin *NomiKin) SendKindroidApiCall(endpoint string, method string, body int
 
     req.Header.Set("Authorization", headers["Authorization"])
     req.Header.Set("Content-Type", headers["Content-Type"])
+    if endpoint == "discord-bot" {
+        req.Header.Set("X-Kindroid-Requester", headers["X-Kindroid-Requester"])
+    }
 
     client := &http.Client{}
     resp, err := client.Do(req)
