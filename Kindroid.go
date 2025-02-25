@@ -77,6 +77,11 @@ func (kin *NomiKin) SendKindroidApiCall(endpoint string, method string, body int
         req.Header.Set("X-Kindroid-Requester", headers["X-Kindroid-Requester"])
     }
 
+    // DEBUGGING
+    for key, value := range req.Header {
+        fmt.Printf("Header: %v: %v\n", key, value)
+    }
+
     client := &http.Client{}
     resp, err := client.Do(req)
     if err != nil {
