@@ -26,17 +26,9 @@ type KinDiscordBot struct {
 }
 
 type KinConversation struct {
-    username string
-    text string
-    timestamp string
-}
-
-func (kin *NomiKin) NewConversationItem(username string, text string, timestamp string) KinConversation {
-    return KinConversation{
-        username: username,
-        text: text,
-        timestamp: timestamp,
-    }
+    Username string             `json:"username"`
+    Text string                 `json:"text"`
+    Timestamp string            `json:"timestamp"`
 }
 
 func (kin *NomiKin) SendKindroidApiCall(endpoint string, method string, body interface{}, extraHeaders map[string]string) ([]byte, error) {
