@@ -61,6 +61,8 @@ func (kin *NomiKin) SendKindroidApiCall(endpoint string, method string, body int
         if err != nil {
             return nil, fmt.Errorf("Error constructing body: %v: ", err)
         }
+        // DEBUGGING
+        fmt.Printf("JSON Body: %v\n", string(jsonBody))
         bodyReader = bytes.NewBuffer(jsonBody)
     } else {
         bodyReader = nil
@@ -75,11 +77,6 @@ func (kin *NomiKin) SendKindroidApiCall(endpoint string, method string, body int
     req.Header.Set("Content-Type", headers["Content-Type"])
     if endpoint == UrlComponents["DiscordBot"][0] {
         req.Header.Set("X-Kindroid-Requester", headers["X-Kindroid-Requester"])
-    }
-
-    // DEBUGGING
-    for key, value := range req.Header {
-        fmt.Printf("Header: %v: %v\n", key, value)
     }
 
     client := &http.Client{}
