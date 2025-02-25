@@ -45,7 +45,7 @@ func (kin *NomiKin) SendKindroidApiCall(endpoint string, method string, body int
         "Content-Type": "application/json",
     }
     
-    if endpoint == "discord-bot" {
+    if endpoint == UrlComponents["DiscordBot"][0] {
         if extraHeaders["X-Kindroid-Requester"] == "" {
             return nil, fmt.Errorf("Error: X-Kindroid-Requester header is required for discord-bot endpoint")
         }
@@ -73,7 +73,7 @@ func (kin *NomiKin) SendKindroidApiCall(endpoint string, method string, body int
 
     req.Header.Set("Authorization", headers["Authorization"])
     req.Header.Set("Content-Type", headers["Content-Type"])
-    if endpoint == "discord-bot" {
+    if endpoint == UrlComponents["DiscordBot"][0] {
         req.Header.Set("X-Kindroid-Requester", headers["X-Kindroid-Requester"])
     }
 
