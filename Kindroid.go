@@ -59,8 +59,6 @@ func (kin *NomiKin) SendKindroidApiCall(endpoint string, method string, body int
         if err != nil {
             return nil, fmt.Errorf("Error constructing body: %v: ", err)
         }
-        // DEBUGGING
-        fmt.Printf("JSON Body: %v\n", string(jsonBody))
         bodyReader = bytes.NewBuffer(jsonBody)
     } else {
         bodyReader = nil
