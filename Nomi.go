@@ -93,7 +93,7 @@ func (nomi *NomiKin) ApiCall(endpoint string, method string, body interface{}) (
 
 func (nomi *NomiKin) RoomExists(roomName *string) (*Room, error) {
     log.Printf("Checking Nomi %v room %v", nomi.CompanionId, *roomName)
-    roomUrl := UrlComponents["RoomCreate"][0]
+    roomUrl := NomiUrlComponents["RoomCreate"][0]
     roomResult, err := nomi.ApiCall(roomUrl, "Get", nil)
 
     if err != nil {
@@ -146,7 +146,7 @@ func (nomi *NomiKin) CreateNomiRoom(name *string, note *string, backchannelingEn
                 "nomiUuids": roomNomis,
             }
 
-            roomUpdateUrl := UrlComponents["RoomCreate"][0] + "/" + roomCheck.Uuid
+            roomUpdateUrl := NomiUrlComponents["RoomCreate"][0] + "/" + roomCheck.Uuid
             response, err := nomi.ApiCall(roomUpdateUrl, "Put", bodyMap)
             if err != nil {
                 return nil, err
@@ -178,7 +178,7 @@ func (nomi *NomiKin) CreateNomiRoom(name *string, note *string, backchannelingEn
             "nomiUuids": nomiUuids,
         }
 
-        response, err := nomi.ApiCall(UrlComponents["RoomCreate"][0], "Post", bodyMap)
+        response, err := nomi.ApiCall(NomiUrlComponents["RoomCreate"][0], "Post", bodyMap)
         if err != nil {
             log.Printf("Error running Create Room: %v", err)
             return nil, err
@@ -207,7 +207,7 @@ func (nomi *NomiKin) SendNomiRoomMessage(message *string, roomId *string) (strin
         "messageText": *message,
     }
 
-    messageSendUrl := UrlComponents["RoomSend"][0] + "/" + *roomId + "/" + UrlComponents["RoomSend"][1]
+    messageSendUrl := NomiUrlComponents["RoomSend"][0] + "/" + *roomId + "/" + NomiUrlComponents["RoomSend"][1]
     response, err := nomi.ApiCall(messageSendUrl, "Post", bodyMap)
     if err != nil {
         log.Printf("Error from API call: %v", err.Error())
@@ -229,7 +229,7 @@ func (nomi *NomiKin) RequestNomiRoomReply(roomId *string, nomiId *string) (strin
         "nomiUuid": *nomiId,
     }
 
-    messageSendUrl := UrlComponents["RoomReply"][0] + "/" + *roomId + "/" + UrlComponents["RoomReply"][1]
+    messageSendUrl := NomiUrlComponents["RoomReply"][0] + "/" + *roomId + "/" + NomiUrlComponents["RoomReply"][1]
     response, err := nomi.ApiCall(messageSendUrl, "Post", bodyMap)
     if err != nil {
         log.Printf("Error from API call: %v", err.Error())
@@ -260,7 +260,7 @@ func (nomi *NomiKin) SendNomiMessage (message *string) (string, error) {
     bodyJson, err := json.Marshal(bodyMap)
     log.Printf("Sending message to Nomi %v: %v", nomi.CompanionId, string(bodyJson))
 
-    messageSendUrl := UrlComponents["SendMessage"][0] + "/" + nomi.CompanionId + "/" + UrlComponents["SendMessage"][1]
+    messageSendUrl := NomiUrlComponents["SendMessage"][0] + "/" + nomi.CompanionId + "/" + NomiUrlComponents["SendMessage"][1]
     response, err := nomi.ApiCall(messageSendUrl, "Post", bodyMap)
     if err != nil {
         log.Printf("Error from API call: %v", err.Error())
