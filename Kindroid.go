@@ -10,13 +10,13 @@ import (
 )
 
 type KinMessage struct {
-    ai_id string
-    message string
+    Ai_id string `json:"ai_id"`
+    Message string `json:"message"`
 }
 
 type KinChatBreak struct {
-    ai_id string
-    greeting string
+    Ai_id string `json:"ai_id"`
+    Greeting string `json:"greeting"`
 }
 
 type KinDiscordBot struct {
@@ -100,8 +100,8 @@ func (kin *NomiKin) SendKindroidMessage(message *string) (string, error) {
     log.Printf("Sending message to Kin %v: %v", kin.CompanionId, message)
     endpoint := KinUrlComponents["SendMessage"][0]
     body := KinMessage{
-        ai_id: kin.CompanionId,
-        message: *message,
+        Ai_id: kin.CompanionId,
+        Message: *message,
     }
     bodyResponse, err := kin.SendKindroidApiCall(endpoint, "POST", body, nil)
     if err != nil {
@@ -114,9 +114,14 @@ func (kin *NomiKin) SendKindroidMessage(message *string) (string, error) {
 }
 
 func (kin *NomiKin) SendKindroidChatBreak(message *KinChatBreak) (string, error) {
-    log.Printf("Sending chat break to Kin %v: %v", kin.CompanionId, message.greeting)
+    log.Printf("Sending chat break to Kin %v: %v", kin.CompanionId, message.Greeting)
     endpoint := KinUrlComponents["ChatBreak"][0]
-    bodyResponse, err := kin.SendKindroidApiCall(endpoint, "POST", message, nil)
+    body := KinChatBreak{
+        Ai_id: kin.CompanionId,
+        Greeting: message.Greeting,
+    }
+
+    bodyResponse, err := kin.SendKindroidApiCall(endpoint, "POST", body, nil)
     if err != nil {
         return "", fmt.Errorf("Error sending chat break to Kin: %v", err)
     }
